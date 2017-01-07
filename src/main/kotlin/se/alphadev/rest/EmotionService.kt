@@ -49,7 +49,8 @@ class EmotionService {
             return
         }
 
-        val imgBytes = readImageData(contentType, req.inputStream, size)
+        val isBase64 = contentType.toLowerCase().endsWith(";base64")
+        val imgBytes = readImageData(isBase64, req.inputStream, size)
         val img = RequestBody.create(MediaType.parse(contentType.replace(";base64", "")), imgBytes)
 
         val emoReq = Request.Builder()
@@ -63,8 +64,11 @@ class EmotionService {
 
         val newImage = renderer.render(imgBytes, faces, req.locale)
 
-        resp.addHeader("content-type", newImage.second.mimeType)
-        resp.outputStream.write(newImage.first)
+        val respContentType = newImage.second.mimeType + if (isBase64) ";base64" else ""
+        val respImage = if (isBase64) Base64.getEncoder().encode(newImage.first) else newImage.first
+
+        resp.addHeader("content-type", respContentType)
+        resp.outputStream.write(respImage)
     }
 
     private fun parseFaces(json: String): List<Face> {
@@ -99,13 +103,9 @@ class EmotionService {
         return faces
     }
 
-    private fun readImageData(contentType: String, input: InputStream, size: Int): ByteArray {
+    private fun readImageData(isBase64: Boolean, input: InputStream, size: Int): ByteArray {
         val bytes = input.readBytes(size)
 
-        if (contentType.endsWith(";base64")) {
-            return Base64.getDecoder().decode(bytes)
-        }
-
-        return bytes
+        return if (isBase64) Base64.getDecoder().decode(bytes) else bytes
     }
 }
