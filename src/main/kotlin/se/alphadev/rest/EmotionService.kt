@@ -4,7 +4,6 @@ import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
 import com.squareup.okhttp.RequestBody
-import org.bouncycastle.asn1.cms.CMSAttributes.contentType
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
@@ -17,11 +16,8 @@ import org.springframework.web.bind.annotation.RestController
 import se.alphadev.image.Face
 import se.alphadev.image.MemeEmotionRenderer
 import se.alphadev.image.Rect
-import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.InputStream
 import java.util.*
-import javax.imageio.ImageIO
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -39,27 +35,19 @@ class EmotionService {
 
     @RequestMapping("/emotions", method = arrayOf(RequestMethod.POST))
     fun emotions(req: HttpServletRequest, resp: HttpServletResponse) {
-
         val contentType = req.getHeader("content-type")
         val size = Integer.parseInt(req.getHeader("content-length"))
 
         val imgBytes = readImageData(contentType, req.inputStream, size)
 
 
-        val faces = parseFaces( emotionDoc(contentType, imgBytes) )
+        val emoResp = client.newCall(emoReq).execute()
+        val faces = parseFaces(emoResp.body().string())
 
         val newImage = renderer.render(imgBytes, faces, req.locale)
 
         resp.addHeader("content-type", newImage.second.mimeType)
         resp.outputStream.write(newImage.first)
-    }
-
-    fun emotionDoc(contentType: String, imgBytes: ByteArray): String {
-        val emoReq = Request.Builder()
-                .url(emoUrl)
-                .post(RequestBody.create(MediaType.parse(contentType), imgBytes))
-                .build()
-        return client.newCall(emoReq).execute().body().string()
     }
 
     private fun parseFaces(json: String): List<Face> {
