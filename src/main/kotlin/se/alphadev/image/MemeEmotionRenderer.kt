@@ -1,10 +1,7 @@
 package se.alphadev.image
 
 import org.springframework.stereotype.Component
-import java.awt.Color
-import java.awt.Font
-import java.awt.Graphics2D
-import java.awt.GraphicsEnvironment
+import java.awt.*
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -18,6 +15,8 @@ open class MemeEmotionRenderer : EmotionRenderer {
     override fun render(image: ByteArray, faces: List<Face>, locale: Locale): Pair<ByteArray, ImageMimeType> {
         val mimg = ImageIO.read(ByteArrayInputStream(image))
         val g = mimg.createGraphics()
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+
         //getAllFonts(g)
         val titleHeight = mimg.height / textToImageRatio
         g.font = Font("Helvetica", 1, titleHeight)
@@ -32,12 +31,11 @@ open class MemeEmotionRenderer : EmotionRenderer {
         drawText(g, emo, topX, topY)
 
         //BOTTOM
-        val text = emotionType.getDescription(locale)
-        val  mockStr = text.toUpperCase()
+        val text = emotionType.getDescription(locale).toUpperCase(locale)
         val textHeight = titleHeight - titleHeight / 3
         g.font = Font("Helvetica", 1, textHeight)
 
-        val acc = textAsRows(g, mimg, mockStr)
+        val acc = textAsRows(g, mimg, text)
 
         val nextY = mimg.height - (acc.size * titleHeight) + titleHeight/2
         drawRows(acc, g, mimg, nextY, titleHeight)
