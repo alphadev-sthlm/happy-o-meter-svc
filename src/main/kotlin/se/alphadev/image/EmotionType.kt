@@ -24,6 +24,6 @@ enum class EmotionType(en: String, sv: String){
     }
 
     fun getDescription(locale: Locale): String {
-        return ResourceBundle.getBundle(this.javaClass.simpleName, locale).getString(this.name);
+        return ResourceBundle.getBundle(this.javaClass.simpleName, locale).getString(this.name)
     }
 }
