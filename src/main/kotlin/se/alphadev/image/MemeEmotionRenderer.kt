@@ -87,18 +87,9 @@ open class MemeEmotionRenderer : EmotionRenderer {
     }
 
     private fun getMostPrevalentEmotion(faces: List<Face>): String {
-        val main_emos = faces.map { it.strongestEmotion() }
-
-        var largest = 0
-        var mainType = EmotionType.neutral
-        for (e in EmotionType.values()) {
-            val count = main_emos.count { e.name.equals(it) }
-            if (count > largest) {
-                largest = count
-                mainType = e
-            }
-        }
-        return mainType.name
+        return faces
+                .groupBy(Face::strongestEmotion)
+                .maxBy { it.value.size }?.key ?: EmotionType.neutral.name
     }
 
     private fun getAllFonts(g: Graphics2D) {
