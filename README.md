@@ -1,4 +1,4 @@
-# Emotion Service [![Build Status](https://travis-ci.org/alphadev-sthlm/emotion-service.png)](https://travis-ci.org/alphadev-sthlm/emotion-service)
+# Happy-O-Meter Service [![Build Status](https://travis-ci.org/alphadev-sthlm/happy-o-meter-svc.svg?branch=master)](https://travis-ci.org/alphadev-sthlm/happy-o-meter-svc)
 
 # Service startup
 
